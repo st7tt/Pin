@@ -20,7 +20,7 @@ function NewPin(var title,var type,var content，var longitude,var latitude){
    }
    if(!type){
      return [204,"类型为空",""]
-   }else if(type.length>2){
+   }else if(type.length>8){
      return [400,"类型格式错误",""];
    }
    if(longitude && latitude){
@@ -76,7 +76,7 @@ function NewPin(var title,var type,var content，var longitude,var latitude){
      }
    });
 }
-function GetEnvironment(var longitude && latitude){
+function GetEnvironment(var longitude ,var latitude){
   if(longitude && latitude){
     return [204,"经纬度为空"]
   }else{
@@ -99,10 +99,10 @@ function GetEnvironment(var longitude && latitude){
     }
   });
 }
-function SendChat(var type,var content,var pinId){
+function SendChat(var type,var content,var pinID){
   if(!type){
     return [204,"类型为空"];
-  }else if(type.length>2){
+  }else if(type.length>8){
     return [400,"类型格式错误"];
   }
   if(!content){
@@ -115,7 +115,7 @@ function SendChat(var type,var content,var pinId){
         alert('请先连接服务器！');
         return;
         }
-     room.send(content,{type:type});
+     room.senD(content,{type:type});
   }
   var pin =AV.Query("Pins");
   var chat = new chat();
