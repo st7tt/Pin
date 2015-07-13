@@ -1,11 +1,27 @@
 var Pins = AV.Object.extend("Pins");
 var LocationLocal = AV.Object.extend("LocatinLocal");
-var Chat = AV.Object.extend("Chat")
-var app ID ="cyl4xo2aqfxt5bod3qn35y1j1y1ilmd0s1w4nlenatq9m6c5";
-var app Key="1c1i0z9nf3d47d54t6hz0kfr3na77rg42ok19oalvag8qg6l";
-var Master Key="130hbfgavtkgbqvwypo38ddqnndkvymsi491i62opcnlxva2";
+var Chat = AV.Object.extend("Chat");
+var appId ="cyl4xo2aqfxt5bod3qn35y1j1y1ilmd0s1w4nlenatq9m6c5";
+var appKey="1c1i0z9nf3d47d54t6hz0kfr3na77rg42ok19oalvag8qg6l";
+var MasterKey="130hbfgavtkgbqvwypo38ddqnndkvymsi491i62opcnlxva2";
+var AV = require('avoscloud-sdk').AV;
+    AV.initialize("{{appId}}", "{{appKey}}")
 var firstFlag = true;
-function NewPin(var title,var type,var content，var longitude,var latitude){
+function test(){
+  var pin = new Pins();
+  pin.set("id",1);
+  pin.set("content","你好1");
+  pin.set("title","Hi1");
+  pin.set("location",{56.5,57.3});
+  pin.save();
+  var pin = new Pins();
+  pin.set("id",2);
+  pin.set("content","你好2");
+  pin.set("title","Hi2");
+  pin.set("location",{56.3,57.5});
+  pin.save();
+}
+function NewPin(title,type,content,longitude,latitude){
    var user = AV.User.current();
    if (!user) {
      return [401,"用户没有登录，没有权限创建Pin",""];
@@ -30,23 +46,21 @@ function NewPin(var title,var type,var content，var longitude,var latitude){
    }else{
      lgt = toString(longitude);
      ltt = toString(latitude);
-     if(lgt.length>24||ltt>24){
+     if(lgt.length>24||ltt.length>24){
        return [400,"经纬度格式错误",""];
      }
    }
    var pin = new Pins();
    var location = new LocationLocal();
    var id = null;
-   var pins = AV.Query(Pins));
+   var pins = AV.Query(Pins);
    var num = 1;
-   var i=0;
-   do{
-     if(!pins.id){
-       id = i;
+   for(var i = 0;i<pins.length;i++){
+     if(i!=pins.id){
+       id = i ;
        break;
      }
-     i++;
-   }while(pins->next);
+   }
    var date = new Date();
    var time= date.toLocalString();
    location.set("longitude",longitude);
@@ -71,27 +85,28 @@ function NewPin(var title,var type,var content，var longitude,var latitude){
            members:['userId'];
            name: pin.title + pin.content + pin.time ;
          });
+         return [200,"成功建立一个Pin",id];
        });
-       return [200,"成功建立一个Pin",id];
      error:function(){
        return [500,"存储信息有误，重新发送"]
      }
-   });
+   }
+  });
 }
-function GetEnvironment(var longitude ,var latitude){
+function GetEnvironment(longitude,latitude){
   if(longitude && latitude){
     return [204,"经纬度为空"]
   }else{
     lgt = toString(longitude);
     ltt = toString(latitude);
-    if(lgt.length>24||ltt>24){
+    if(lgt.length>24||ltt.length>24){
       return [400,"经纬度格式错误"];
     }
   }
-  var pins = AV.Query(Pins));
+  var pins = AV.Query(Pins);
   var point = new AV.GeoPoint({latitude:lattitude,longitude:longitude});
   pins.near("location",point);
-  pins.withinKilometers(1000);
+  pins.withinKilometers(1);
   pins.find({
     success:function(pins){
       return [200,"获取成功",pins];
@@ -101,7 +116,7 @@ function GetEnvironment(var longitude ,var latitude){
     }
   });
 }
-function SendChat(var type,var content,var pinID){
+function SendChat(type,content,pinID){
   if(!type){
     return [204,"类型为空"];
   }else if(type.length>8){
@@ -114,13 +129,13 @@ function SendChat(var type,var content,var pinID){
   }
   if(firstFlag){
      if (firstFlag) {
-        alert('请先连接服务器！');
+        alert("请先连接服务器！");
         return;
         }
-     room.senD(content,{type:type});
+     room.send(content,{type:type});
   }
   var pin =AV.Query("Pins");
-  var chat = new chat();
+  var chat = new Chat();
   var date = new Date();
   var time= date.toLocalString();
   var user = AV.User.current();
@@ -151,7 +166,7 @@ function SendChat(var type,var content,var pinID){
   }
   return [200,"已成功发送一条信息"];
 }
-function enterRoom(var pinID){
+function enterRoom(pinID){
   var pin = AV.Query("Pins");
   pin.equalTo("id",pinID);
   pin.find({
@@ -186,7 +201,7 @@ function enterRoom(var pinID){
     });
   }
 }
-function OutPin(var pinID){
+function OutPin(pinID){
   var pin = AV.Query("Pins");
   pin.equalTo("id",pinID);
   var user = AV.User.current():
@@ -203,7 +218,8 @@ function OutPin(var pinID){
             room.remove(user.id);
             return [200,"退出成功"];
           }
-      });
+        });
+      }
     }
   });
 }
